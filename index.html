@@ -892,6 +892,13 @@
             </div>
         </div>
 
+        <div class="auto-ad-status">
+            <h4><i class="fas fa-robot"></i> GIGAPUB AUTO AD SYSTEM</h4>
+            <p>Ads will play automatically one after another</p>
+            <div class="ad-count" id="adCount">0</div>
+            <p>ads completed in this session</p>
+        </div>
+
         <div class="ad-container">
             <div class="ad-label">Gigapub Advertisement System</div>
             <div id="adContent" class="ad-loading">Gigapub ad system loading...</div>
@@ -913,20 +920,24 @@
             <div class="premium-tab-content active" id="earn-tab">
                 <div class="premium-card">
                     <div class="section-title">
-                        <i class="fas fa-crown"></i> WATCH ADS & EARN COINS
+                        <i class="fas fa-crown"></i> AUTO WATCH ADS & EARN COINS
                     </div>
                     <p style="font-size: 15px; margin-bottom: 25px; color: rgba(255, 255, 255, 0.9); line-height: 1.6;">
-                        Click the button below to watch an ad and earn coins. Each ad gives you 10 coins.
+                        Start the GIGAPUB PREMIUM auto ad system and earn coins automatically. Ads will play one after another without any interruption.
                     </p>
                     
-                    <button class="premium-btn btn-success" id="watchAdBtn">
-                        <span id="watchAdBtnText">WATCH AD & EARN COINS</span>
-                        <span class="loader hidden" id="watchAdLoader"></span>
+                    <button class="premium-btn btn-success" id="startAutoAdBtn">
+                        <span id="startAutoAdBtnText">START AUTO ADS</span>
+                        <span class="loader hidden" id="startAutoAdLoader"></span>
+                    </button>
+                    
+                    <button class="premium-btn btn-danger hidden" id="stopAutoAdBtn">
+                        <span id="stopAutoAdBtnText">STOP AUTO ADS</span>
                     </button>
                     
                     <div style="margin-top: 25px; text-align: center;">
                         <div class="stat-label">Reward per ad: <strong style="color: #FFD166;">10 COINS</strong></div>
-                        <div class="stat-label">Status: <strong id="adStatusText" style="color: #06D6A0;">READY TO WATCH</strong></div>
+                        <div class="stat-label">Status: <strong id="autoAdStatusText" style="color: #06D6A0;">READY TO START</strong></div>
                     </div>
                 </div>
             </div>
@@ -986,7 +997,11 @@
             <p style="color: rgba(255, 255, 255, 0.9); margin-bottom: 20px;">
                 You have successfully watched the ad and earned <strong id="earnedCoins" style="color: #FFD166;">10 COINS</strong>!
             </p>
+            <p style="color: rgba(255, 255, 255, 0.9); margin-bottom: 25px;">
+                <strong>NEXT AD WILL START AUTOMATICALLY...</strong>
+            </p>
             <button class="premium-btn btn-primary" id="adCompleteOkBtn">CONTINUE WATCHING</button>
+            <button class="premium-btn btn-danger" id="adCompleteStopBtn">STOP AUTO ADS</button>
         </div>
     </div>
 
@@ -1047,6 +1062,11 @@
             userName: userName
         };
 
+        // Auto ad system state
+        let autoAdActive = false;
+        let currentAdCount = 0;
+        let adInterval = null;
+
         // Ad reward amount
         const AD_REWARD = 10;
 
@@ -1093,13 +1113,16 @@
         const tabs = document.querySelectorAll('.premium-tab');
         const tabContents = document.querySelectorAll('.premium-tab-content');
         const adContent = document.getElementById('adContent');
-        const watchAdBtn = document.getElementById('watchAdBtn');
-        const watchAdBtnText = document.getElementById('watchAdBtnText');
-        const watchAdLoader = document.getElementById('watchAdLoader');
+        const startAutoAdBtn = document.getElementById('startAutoAdBtn');
+        const startAutoAdBtnText = document.getElementById('startAutoAdBtnText');
+        const startAutoAdLoader = document.getElementById('startAutoAdLoader');
+        const stopAutoAdBtn = document.getElementById('stopAutoAdBtn');
         const adBlockerWarning = document.getElementById('adBlockerWarning');
         const retryAdCheckBtn = document.getElementById('retryAdCheckBtn');
-        const adStatusText = document.getElementById('adStatusText');
+        const autoAdStatusText = document.getElementById('autoAdStatusText');
+        const adCountEl = document.getElementById('adCount');
         const adCompleteOkBtn = document.getElementById('adCompleteOkBtn');
+        const adCompleteStopBtn = document.getElementById('adCompleteStopBtn');
 
         // Initialize the app
         function initApp() {
@@ -1142,16 +1165,16 @@
                 
                 if (isBlocked) {
                     adBlockerWarning.classList.remove('hidden');
-                    watchAdBtn.disabled = true;
-                    watchAdBtnText.textContent = 'AD BLOCKER DETECTED';
-                    adStatusText.textContent = 'AD BLOCKER DETECTED - PLEASE DISABLE';
-                    adStatusText.style.color = '#FF6B6B';
+                    startAutoAdBtn.disabled = true;
+                    startAutoAdBtnText.textContent = 'AD BLOCKER DETECTED';
+                    autoAdStatusText.textContent = 'AD BLOCKER DETECTED - PLEASE DISABLE';
+                    autoAdStatusText.style.color = '#FF6B6B';
                 } else {
                     adBlockerWarning.classList.add('hidden');
-                    watchAdBtn.disabled = false;
-                    watchAdBtnText.textContent = 'WATCH AD & EARN COINS';
-                    adStatusText.textContent = 'READY TO WATCH';
-                    adStatusText.style.color = '#06D6A0';
+                    startAutoAdBtn.disabled = false;
+                    startAutoAdBtnText.textContent = 'START AUTO ADS';
+                    autoAdStatusText.textContent = 'READY TO START';
+                    autoAdStatusText.style.color = '#06D6A0';
                 }
             }, 100);
         }
@@ -1166,7 +1189,7 @@
 
             function checkGigapubSDK() {
                 if (typeof window.showGiga === 'function') {
-                    adContent.innerHTML = 'Gigapub ad system ready! Click "WATCH AD & EARN COINS" to begin.';
+                    adContent.innerHTML = 'Gigapub ad system ready! Click "START AUTO ADS" to begin.';
                     adContent.className = 'ad-success';
                     return true;
                 } else if (checkCount < maxChecks) {
@@ -1182,14 +1205,46 @@
             checkGigapubSDK();
         }
 
+        // Start auto ad system
+        function startAutoAds() {
+            if (adBlockerWarning.classList.contains('hidden')) {
+                autoAdActive = true;
+                currentAdCount = 0;
+                updateAdCount();
+                
+                startAutoAdBtn.classList.add('hidden');
+                stopAutoAdBtn.classList.remove('hidden');
+                autoAdStatusText.textContent = 'AUTO ADS RUNNING...';
+                autoAdStatusText.style.color = '#FFD166';
+                
+                showGigapubAd();
+            } else {
+                showNotification('Please disable your ad blocker first', 'error');
+            }
+        }
+
+        // Stop auto ad system
+        function stopAutoAds() {
+            autoAdActive = false;
+            
+            startAutoAdBtn.classList.remove('hidden');
+            stopAutoAdBtn.classList.add('hidden');
+            autoAdStatusText.textContent = 'AUTO ADS STOPPED';
+            autoAdStatusText.style.color = '#FF6B6B';
+            
+            adContent.innerHTML = 'Auto ads stopped. Click "START AUTO ADS" to resume.';
+            adContent.className = 'ad-loading';
+            
+            showNotification('Auto ads stopped. ' + currentAdCount + ' ads completed in this session.', 'warning');
+        }
+
         // Show Gigapub ad and reward user
         function showGigapubAd() {
+            if (!autoAdActive) return;
+            
             adContent.innerHTML = 'Loading Gigapub advertisement... Please wait.';
             adContent.className = 'ad-loading';
-            adStatusText.textContent = 'LOADING AD...';
-            watchAdBtn.disabled = true;
-            watchAdBtnText.classList.add('hidden');
-            watchAdLoader.classList.remove('hidden');
+            autoAdStatusText.textContent = 'LOADING AD...';
 
             if (typeof window.showGiga === 'function') {
                 try {
@@ -1198,7 +1253,7 @@
                             // Ad completed successfully
                             adContent.innerHTML = 'Ad completed successfully! Adding coins...';
                             adContent.className = 'ad-success';
-                            adStatusText.textContent = 'AD COMPLETED - ADDING COINS';
+                            autoAdStatusText.textContent = 'AD COMPLETED - ADDING COINS';
                             
                             setTimeout(() => {
                                 completeAd();
@@ -1206,33 +1261,30 @@
                         })
                         .catch((error) => {
                             console.log('Gigapub ad error:', error);
-                            adContent.innerHTML = 'Ad failed. Please try again.';
+                            adContent.innerHTML = 'Ad failed. Trying next ad...';
                             adContent.className = 'ad-error';
-                            adStatusText.textContent = 'AD FAILED - TRY AGAIN';
+                            autoAdStatusText.textContent = 'AD FAILED - RETRYING';
                             
-                            watchAdBtn.disabled = false;
-                            watchAdBtnText.classList.remove('hidden');
-                            watchAdLoader.classList.add('hidden');
+                            setTimeout(() => {
+                                if (autoAdActive) showGigapubAd();
+                            }, 2000);
                         });
                     
                 } catch (error) {
                     console.log('Gigapub ad execution error:', error);
-                    adContent.innerHTML = 'Ad error. Please try again.';
+                    adContent.innerHTML = 'Ad error. Trying next ad...';
                     adContent.className = 'ad-error';
-                    adStatusText.textContent = 'AD ERROR - TRY AGAIN';
+                    autoAdStatusText.textContent = 'AD ERROR - RETRYING';
                     
-                    watchAdBtn.disabled = false;
-                    watchAdBtnText.classList.remove('hidden');
-                    watchAdLoader.classList.add('hidden');
+                    setTimeout(() => {
+                        if (autoAdActive) showGigapubAd();
+                    }, 2000);
                 }
             } else {
                 adContent.innerHTML = 'Gigapub ad system not available. Please try again later.';
                 adContent.className = 'ad-error';
-                adStatusText.textContent = 'AD SYSTEM ERROR';
-                
-                watchAdBtn.disabled = false;
-                watchAdBtnText.classList.remove('hidden');
-                watchAdLoader.classList.add('hidden');
+                autoAdStatusText.textContent = 'AD SYSTEM ERROR';
+                stopAutoAds();
             }
         }
 
@@ -1241,19 +1293,33 @@
             userData.balance += AD_REWARD;
             userData.todayEarnings += AD_REWARD;
             userData.adsWatched += 1;
+            currentAdCount += 1;
             userData.lastEarnDate = new Date().toDateString();
             
             saveUserData();
             updateUI();
+            updateAdCount();
             
             earnedCoinsEl.textContent = `${AD_REWARD} COINS`;
             
-            // Show completion modal
+            // Show completion modal briefly
             adCompleteModal.style.display = 'flex';
             
-            watchAdBtn.disabled = false;
-            watchAdBtnText.classList.remove('hidden');
-            watchAdLoader.classList.add('hidden');
+            // Auto close modal and continue after 3 seconds
+            setTimeout(() => {
+                if (autoAdActive && adCompleteModal.style.display === 'flex') {
+                    adCompleteModal.style.display = 'none';
+                    // Start next ad after a short delay
+                    setTimeout(() => {
+                        if (autoAdActive) showGigapubAd();
+                    }, 1000);
+                }
+            }, 3000);
+        }
+
+        // Update ad count display
+        function updateAdCount() {
+            adCountEl.textContent = currentAdCount;
         }
 
         // Update UI with user data
@@ -1336,8 +1402,11 @@
                 });
             });
 
-            // Watch ad button
-            watchAdBtn.addEventListener('click', showGigapubAd);
+            // Start auto ad button
+            startAutoAdBtn.addEventListener('click', startAutoAds);
+
+            // Stop auto ad button
+            stopAutoAdBtn.addEventListener('click', stopAutoAds);
 
             // Retry ad blocker check
             retryAdCheckBtn.addEventListener('click', () => {
@@ -1361,11 +1430,19 @@
                 });
             });
 
-            // Ad complete modal button
+            // Ad complete modal buttons
             adCompleteOkBtn.addEventListener('click', () => {
                 adCompleteModal.style.display = 'none';
-                adStatusText.textContent = 'READY TO WATCH';
-                adStatusText.style.color = '#06D6A0';
+                if (autoAdActive) {
+                    setTimeout(() => {
+                        showGigapubAd();
+                    }, 500);
+                }
+            });
+
+            adCompleteStopBtn.addEventListener('click', () => {
+                adCompleteModal.style.display = 'none';
+                stopAutoAds();
             });
 
             // Form validation
