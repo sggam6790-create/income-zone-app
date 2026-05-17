@@ -1,0 +1,502 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no">
+    <title>Guild Glory | Bot Activation Center 🔓</title>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;600;700;800&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Inter', 'Segoe UI', system-ui, sans-serif;
+            background: radial-gradient(circle at 30% 20%, #0a0f1e, #02040c);
+            min-height: 100vh;
+            color: #fff;
+            overflow-x: hidden;
+        }
+
+        canvas#starsCanvas {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            z-index: -1;
+            opacity: 0.6;
+            pointer-events: none;
+        }
+
+        .main-container {
+            max-width: 800px;
+            margin: 0 auto;
+            padding: 30px 24px;
+            min-height: 100vh;
+            display: flex;
+            flex-direction: column;
+            position: relative;
+            z-index: 10;
+        }
+
+        .completion-badge {
+            background: linear-gradient(135deg, #00c85322, #00ffaa22);
+            border: 1px solid #00ffaa;
+            border-radius: 60px;
+            padding: 12px 24px;
+            text-align: center;
+            margin-bottom: 30px;
+            backdrop-filter: blur(10px);
+            animation: glowPulse 2s infinite;
+        }
+
+        @keyframes glowPulse {
+            0% { box-shadow: 0 0 5px #00ffaa; border-color: #00ffaa; }
+            50% { box-shadow: 0 0 20px #00ffaa; border-color: #aaffdd; }
+            100% { box-shadow: 0 0 5px #00ffaa; border-color: #00ffaa; }
+        }
+
+        .completion-badge i {
+            color: #00ffaa;
+            margin-right: 10px;
+        }
+
+        .glass-card {
+            background: rgba(12, 20, 35, 0.65);
+            backdrop-filter: blur(18px);
+            border-radius: 48px;
+            border: 1px solid rgba(255, 180, 70, 0.4);
+            box-shadow: 0 25px 45px -12px rgba(0,0,0,0.5);
+            padding: 32px 28px;
+            margin-bottom: 25px;
+        }
+
+        .premium-header h1 {
+            font-size: 2rem;
+            font-weight: 800;
+            background: linear-gradient(135deg, #FFE6B0, #FFA559, #00ffaa);
+            -webkit-background-clip: text;
+            background-clip: text;
+            color: transparent;
+            text-align: center;
+        }
+
+        .premium-header p {
+            text-align: center;
+            color: #9aa3bf;
+            margin-top: 10px;
+        }
+
+        .section-title {
+            font-size: 1.5rem;
+            font-weight: 700;
+            margin: 25px 0 15px 0;
+            color: #FFD966;
+        }
+
+        .server-grid, .bot-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(145px, 1fr));
+            gap: 18px;
+            margin: 20px 0;
+        }
+
+        .server-card, .bot-card {
+            background: linear-gradient(145deg, #141b30, #0a0f1e);
+            padding: 18px 12px;
+            border-radius: 38px;
+            text-align: center;
+            cursor: pointer;
+            transition: all 0.25s;
+            border: 1px solid #2f3b66;
+            font-weight: 600;
+        }
+
+        .server-card:hover, .bot-card:hover {
+            transform: translateY(-3px);
+            border-color: #ffb347;
+        }
+
+        .server-card.selected, .bot-card.selected {
+            border: 2px solid #ffb347;
+            background: linear-gradient(145deg, #ffb34733, #ff8c4233);
+            box-shadow: 0 0 25px #ffb347;
+            transform: scale(1.02);
+        }
+
+        .input-group {
+            margin: 20px 0;
+        }
+
+        .input-group input {
+            width: 100%;
+            padding: 16px 22px;
+            background: #0a1022cc;
+            border: 1.5px solid #ffb34766;
+            border-radius: 60px;
+            color: white;
+            font-size: 1rem;
+            transition: 0.2s;
+        }
+
+        .input-group input:focus {
+            outline: none;
+            border-color: #ffb347;
+            box-shadow: 0 0 12px #ffb347;
+        }
+
+        .deploy-btn {
+            background: linear-gradient(95deg, #00c853, #64dd17);
+            border: none;
+            padding: 18px 35px;
+            border-radius: 60px;
+            font-size: 1.3rem;
+            font-weight: 800;
+            cursor: pointer;
+            width: 100%;
+            margin-top: 20px;
+            transition: 0.3s;
+            color: #0a0f1e;
+        }
+
+        .deploy-btn:hover {
+            transform: scale(1.02);
+            box-shadow: 0 0 30px #00ff88;
+        }
+
+        .terminal {
+            background: #050b15;
+            border-radius: 34px;
+            padding: 28px;
+            font-family: 'Courier New', monospace;
+            font-size: 0.9rem;
+            border: 1px solid #00ffaa;
+            box-shadow: 0 0 30px rgba(0, 255, 170, 0.2);
+            max-height: 400px;
+            overflow-y: auto;
+            margin-top: 25px;
+            display: none;
+        }
+
+        .terminal-line {
+            color: #00ffaa;
+            margin: 8px 0;
+            white-space: pre-wrap;
+        }
+
+        .terminal-line.warning {
+            color: #ffaa44;
+        }
+
+        .terminal-line.success {
+            color: #aaffdd;
+            text-shadow: 0 0 4px #00ffaa;
+        }
+
+        .modal {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(0, 0, 0, 0.97);
+            backdrop-filter: blur(20px);
+            z-index: 2000;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            visibility: hidden;
+            opacity: 0;
+            transition: 0.2s;
+        }
+
+        .modal.active {
+            visibility: visible;
+            opacity: 1;
+        }
+
+        .modal-content {
+            background: radial-gradient(circle at 20% 30%, #121a2e, #080d1c);
+            padding: 40px;
+            border-radius: 68px;
+            text-align: center;
+            max-width: 90%;
+            width: 500px;
+            border: 1px solid rgba(255, 200, 100, 0.6);
+        }
+
+        .success-modal {
+            background: linear-gradient(145deg, #00a86b, #008855);
+            border: none;
+        }
+
+        .success-modal h2 {
+            color: white;
+        }
+
+        .homepage-btn {
+            background: #ffb347;
+            padding: 12px 35px;
+            border-radius: 50px;
+            margin-top: 25px;
+            border: none;
+            font-weight: bold;
+            cursor: pointer;
+            transition: 0.3s;
+        }
+
+        .homepage-btn:hover {
+            background: #ffaa33;
+            transform: scale(1.02);
+            box-shadow: 0 0 15px #ffb347;
+        }
+
+        footer {
+            text-align: center;
+            margin-top: 30px;
+            font-size: 0.7rem;
+            color: #4a5580;
+        }
+    </style>
+</head>
+<body>
+<canvas id="starsCanvas"></canvas>
+
+<div class="main-container">
+    <div class="completion-badge">
+        <i class="fas fa-check-circle"></i> EARNLINKS VERIFICATION COMPLETED 
+        <i class="fas fa-shield-alt"></i> | ACCESS GRANTED
+    </div>
+
+    <div class="glass-card">
+        <div class="premium-header">
+            <h1><i class="fas fa-robot"></i> GUILD GLORY BOT ACTIVATION</h1>
+            <p>Secure Military-Grade Deployment System</p>
+        </div>
+
+        <div class="section-title"><i class="fas fa-globe-asia"></i> SELECT YOUR SERVER</div>
+        <div class="server-grid" id="serverGrid">
+            <div class="server-card" data-server="bangladesh">🇧🇩 BANGLADESH</div>
+            <div class="server-card" data-server="nepal">🇳🇵 NEPAL</div>
+            <div class="server-card" data-server="india">🇮🇳 INDIA</div>
+            <div class="server-card" data-server="pakistan">🇵🇰 PAKISTAN</div>
+            <div class="server-card" data-server="srilanka">🇱🇰 SRI LANKA</div>
+            <div class="server-card" data-server="indonesia">🇮🇩 INDONESIA</div>
+        </div>
+
+        <div class="section-title"><i class="fas fa-microchip"></i> SELECT BOT UNIT</div>
+        <div class="bot-grid" id="botGrid">
+            <div class="bot-card" data-bot="BOT-1">🤖 BOT-1 | PRO</div>
+            <div class="bot-card" data-bot="BOT-2">⚡ BOT-2 | ELITE</div>
+            <div class="bot-card" data-bot="BOT-3">💎 BOT-3 | DIAMOND</div>
+            <div class="bot-card" data-bot="BOT-4">👑 BOT-4 | LEGENDARY</div>
+        </div>
+
+        <div class="section-title"><i class="fas fa-key"></i> GUILD CREDENTIALS</div>
+        <div class="input-group">
+            <input type="text" id="guildId" placeholder="🏰 Guild ID *">
+        </div>
+        <div class="input-group">
+            <input type="text" id="guestToken" placeholder="🔑 Guest Access Token *">
+        </div>
+        <div class="input-group">
+            <input type="password" id="password" placeholder="🔒 Encrypted Password *">
+        </div>
+
+        <button class="deploy-btn" id="deployBtn">
+            <i class="fas fa-rocket"></i> DEPLOY & ACTIVATE BOT <i class="fas fa-arrow-right"></i>
+        </button>
+
+        <div id="terminalContainer">
+            <div class="terminal" id="terminal"></div>
+        </div>
+    </div>
+
+    <footer>
+        <i class="fas fa-shield-haltered"></i> Military Grade Encryption | Session secured
+    </footer>
+</div>
+
+<script>
+    // ========== HOMEPAGE URL ==========
+    const HOMEPAGE_URL = "https://sggam6790-create.github.io/Body_web/";
+
+    // ========== STATE ==========
+    let selectedServer = null;
+    let selectedBot = null;
+
+    const serverCards = document.querySelectorAll('.server-card');
+    const botCards = document.querySelectorAll('.bot-card');
+    const deployBtn = document.getElementById('deployBtn');
+    const terminalDiv = document.getElementById('terminal');
+
+    serverCards.forEach(card => {
+        card.addEventListener('click', () => {
+            serverCards.forEach(c => c.classList.remove('selected'));
+            card.classList.add('selected');
+            selectedServer = card.getAttribute('data-server');
+        });
+    });
+
+    botCards.forEach(card => {
+        card.addEventListener('click', () => {
+            botCards.forEach(c => c.classList.remove('selected'));
+            card.classList.add('selected');
+            selectedBot = card.getAttribute('data-bot');
+        });
+    });
+
+    deployBtn.addEventListener('click', () => {
+        const guildId = document.getElementById('guildId').value.trim();
+        const guestToken = document.getElementById('guestToken').value.trim();
+        const password = document.getElementById('password').value.trim();
+
+        if(!selectedServer) { showAlertModal("⚠️ Please select a server region!"); return; }
+        if(!selectedBot) { showAlertModal("⚠️ Please select a bot unit!"); return; }
+        if(!guildId) { showAlertModal("⚠️ Please enter your Guild ID!"); return; }
+        if(!guestToken) { showAlertModal("⚠️ Please enter your Guest Access Token!"); return; }
+        if(!password) { showAlertModal("⚠️ Please enter your password!"); return; }
+
+        startTerminalSequence(guildId);
+    });
+
+    function startTerminalSequence(guildId) {
+        terminalDiv.style.display = 'block';
+        terminalDiv.innerHTML = '<div class="terminal-line">> Initializing secure deployment node v5.2...</div>';
+        
+        const logs = [
+            { text: "> Establishing quantum encrypted tunnel...", type: "normal" },
+            { text: `> Server: ${selectedServer.toUpperCase()} | Status: ONLINE | Latency: 12ms`, type: "normal" },
+            { text: `> Bot Unit: ${selectedBot} | Firmware: v5.2.7 | Core integrity: 100%`, type: "normal" },
+            { text: `> Guild ID: ${guildId.substring(0,5)}**** | Validating credentials...`, type: "normal" },
+            { text: "> [WARNING] Bypassing regional firewall rules...", type: "warning" },
+            { text: "> Injecting Glory Payload into bot neural core...", type: "normal" },
+            { text: "> ████████░░░░ 42% - Encrypting handshake protocol", type: "normal" },
+            { text: "> ████████████░░ 74% - Syncing with master control node", type: "normal" },
+            { text: "> ██████████████ 98% - Finalizing deployment", type: "normal" },
+            { text: "> [SUCCESS] Guild Bot Successfully Activated!", type: "success" },
+            { text: `> Transaction ID: GL4-${Math.random().toString(36).substring(2,8).toUpperCase()}`, type: "success" },
+            { text: "> Your bot request has been submitted to main server.", type: "normal" },
+            { text: "> ⏳ Please allow 5 hours for final confirmation.", type: "warning" }
+        ];
+        
+        let index = 0;
+        const interval = setInterval(() => {
+            if(index < logs.length) {
+                const log = logs[index];
+                const line = document.createElement('div');
+                line.className = 'terminal-line';
+                if(log.type === 'warning') line.classList.add('warning');
+                if(log.type === 'success') line.classList.add('success');
+                line.innerHTML = log.text;
+                terminalDiv.appendChild(line);
+                terminalDiv.scrollTop = terminalDiv.scrollHeight;
+                index++;
+            } else {
+                clearInterval(interval);
+                setTimeout(() => {
+                    showSuccessModal();
+                }, 1000);
+            }
+        }, 700);
+    }
+
+    function showSuccessModal() {
+        const modal = document.createElement('div');
+        modal.className = 'modal active';
+        modal.innerHTML = `
+            <div class="modal-content success-modal">
+                <i class="fas fa-check-circle" style="font-size: 4rem; color: #aaffdd;"></i>
+                <h2 style="margin: 20px 0;">✅ ACTIVATION SUCCESSFUL ✅</h2>
+                <p>Your bot request has been encrypted and submitted to the Guild Glory mainframe.</p>
+                <p style="margin: 15px 0;"><strong>Status:</strong> Pending Confirmation</p>
+                <p>Please allow up to 5 hours for final delivery.</p>
+                <button class="homepage-btn" id="closeToHomeBtn">
+                    <i class="fas fa-home"></i> CLOSE & GO TO HOMEPAGE
+                </button>
+            </div>
+        `;
+        document.body.appendChild(modal);
+        
+        // Close button redirects to homepage
+        document.getElementById('closeToHomeBtn').addEventListener('click', () => {
+            window.location.href = HOMEPAGE_URL;
+        });
+    }
+
+    function showAlertModal(message) {
+        const modal = document.createElement('div');
+        modal.className = 'modal active';
+        modal.innerHTML = `
+            <div class="modal-content">
+                <i class="fas fa-exclamation-triangle" style="font-size: 3rem; color: #ffaa44;"></i>
+                <h3 style="margin: 15px 0;">Alert!</h3>
+                <p>${message}</p>
+                <button class="homepage-btn" id="alertCloseBtn" style="background: #ffb347;">
+                    OK
+                </button>
+            </div>
+        `;
+        document.body.appendChild(modal);
+        
+        document.getElementById('alertCloseBtn').addEventListener('click', () => {
+            modal.remove();
+        });
+    }
+
+    // ========== STARFIELD BACKGROUND ==========
+    const canvas = document.getElementById('starsCanvas');
+    const ctx = canvas.getContext('2d');
+    let width = window.innerWidth;
+    let height = window.innerHeight;
+    canvas.width = width;
+    canvas.height = height;
+
+    let stars = [];
+    for(let i = 0; i < 200; i++) {
+        stars.push({
+            x: Math.random() * width,
+            y: Math.random() * height,
+            radius: Math.random() * 2 + 1,
+            alpha: Math.random() * 0.6 + 0.2
+        });
+    }
+
+    function drawStars() {
+        if(!ctx) return;
+        ctx.clearRect(0, 0, width, height);
+        ctx.fillStyle = "#05070f";
+        ctx.fillRect(0, 0, width, height);
+        for(let s of stars) {
+            ctx.beginPath();
+            ctx.arc(s.x, s.y, s.radius, 0, Math.PI * 2);
+            ctx.fillStyle = `rgba(255, 220, 150, ${s.alpha})`;
+            ctx.fill();
+        }
+        requestAnimationFrame(drawStars);
+    }
+
+    window.addEventListener('resize', () => {
+        width = window.innerWidth;
+        height = window.innerHeight;
+        canvas.width = width;
+        canvas.height = height;
+        stars = [];
+        for(let i = 0; i < 200; i++) {
+            stars.push({
+                x: Math.random() * width,
+                y: Math.random() * height,
+                radius: Math.random() * 2 + 1,
+                alpha: Math.random() * 0.6 + 0.2
+            });
+        }
+    });
+
+    drawStars();
+</script>
+</body>
+</html>
