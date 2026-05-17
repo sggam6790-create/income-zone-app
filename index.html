@@ -1,9 +1,11 @@
 <!DOCTYPE html>
-<html lang="bn">
+<html lang="en">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no">
-    <title>FF Guild Glory | Task Verification</title>
+    <title>Guild Glory | Bot Activation Center 🔓</title>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;600;700;800&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
     <style>
         * {
             margin: 0;
@@ -12,559 +14,487 @@
         }
 
         body {
-            font-family: 'Poppins', 'Segoe UI', system-ui, sans-serif;
-            background: radial-gradient(circle at 20% 30%, #0a0f1e, #03060c);
+            font-family: 'Inter', 'Segoe UI', system-ui, sans-serif;
+            background: radial-gradient(circle at 30% 20%, #0a0f1e, #02040c);
             min-height: 100vh;
             color: #fff;
             overflow-x: hidden;
         }
 
-        /* ল্যান্ডিং পেজ (ইন্ট্রো) */
-        .landing {
+        /* Animated particle background */
+        canvas#starsCanvas {
             position: fixed;
             top: 0;
             left: 0;
             width: 100%;
             height: 100%;
-            background: radial-gradient(ellipse at center, #0f172a 0%, #020617 100%);
-            z-index: 1000;
-            display: flex;
-            justify-content: center;
-            align-items: center;
-            flex-direction: column;
-            transition: opacity 0.8s ease, visibility 0.8s;
-            backdrop-filter: blur(4px);
+            z-index: -1;
+            opacity: 0.6;
+            pointer-events: none;
         }
 
-        .landing.hide {
-            opacity: 0;
-            visibility: hidden;
-        }
-
-        .glow-text {
-            font-size: 4rem;
-            font-weight: 900;
-            background: linear-gradient(135deg, #FFD966, #FF8C42, #FF3A3A);
-            background-size: 300% 300%;
-            -webkit-background-clip: text;
-            background-clip: text;
-            color: transparent;
-            animation: gradientShift 3s ease infinite, float 2s ease-in-out infinite;
-            text-shadow: 0 0 30px rgba(255, 140, 66, 0.5);
-            letter-spacing: 4px;
-        }
-
-        @keyframes gradientShift {
-            0% { background-position: 0% 50%; }
-            50% { background-position: 100% 50%; }
-            100% { background-position: 0% 50%; }
-        }
-
-        @keyframes float {
-            0% { transform: translateY(0px); }
-            50% { transform: translateY(-10px); }
-            100% { transform: translateY(0px); }
-        }
-
-        .sub-logo {
-            margin-top: 20px;
-            font-size: 1.2rem;
-            letter-spacing: 3px;
-            color: #ffb347aa;
-            border-top: 1px solid #ffb34766;
-            padding-top: 15px;
-        }
-
-        .enter-btn {
-            margin-top: 50px;
-            background: linear-gradient(95deg, #FF8C42, #FFD966);
-            border: none;
-            padding: 14px 45px;
-            font-size: 1.3rem;
-            font-weight: bold;
-            border-radius: 60px;
-            color: #0a0f1e;
-            cursor: pointer;
-            transition: 0.3s;
-            box-shadow: 0 0 20px #ff8c4270;
-        }
-
-        .enter-btn:hover {
-            transform: scale(1.05);
-            box-shadow: 0 0 35px #ffaa33;
-        }
-
-        /* মেইন পেজ */
         .main-container {
-            max-width: 600px;
+            max-width: 800px;
             margin: 0 auto;
-            padding: 20px;
+            padding: 30px 24px;
             min-height: 100vh;
             display: flex;
             flex-direction: column;
-            justify-content: center;
-            opacity: 0;
-            transition: opacity 0.6s ease;
+            position: relative;
+            z-index: 10;
         }
 
-        .main-container.show {
-            opacity: 1;
-        }
-
-        .premium-header {
+        /* Success badge - shows EarnLinks completion */
+        .completion-badge {
+            background: linear-gradient(135deg, #00c85322, #00ffaa22);
+            border: 1px solid #00ffaa;
+            border-radius: 60px;
+            padding: 12px 24px;
             text-align: center;
-            margin-bottom: 40px;
+            margin-bottom: 30px;
+            backdrop-filter: blur(10px);
+            animation: glowPulse 2s infinite;
         }
 
-        .premium-header h2 {
-            font-size: 1.8rem;
-            background: linear-gradient(120deg, #FFE6B0, #FFA559);
-            -webkit-background-clip: text;
-            background-clip: text;
-            color: transparent;
-            font-weight: 700;
-            text-transform: uppercase;
+        @keyframes glowPulse {
+            0% { box-shadow: 0 0 5px #00ffaa; border-color: #00ffaa; }
+            50% { box-shadow: 0 0 20px #00ffaa; border-color: #aaffdd; }
+            100% { box-shadow: 0 0 5px #00ffaa; border-color: #00ffaa; }
         }
 
-        .glow-card {
-            background: rgba(15, 25, 45, 0.7);
-            backdrop-filter: blur(14px);
+        .completion-badge i {
+            color: #00ffaa;
+            margin-right: 10px;
+        }
+
+        .glass-card {
+            background: rgba(12, 20, 35, 0.65);
+            backdrop-filter: blur(18px);
             border-radius: 48px;
             border: 1px solid rgba(255, 180, 70, 0.4);
-            padding: 28px 20px;
+            box-shadow: 0 25px 45px -12px rgba(0,0,0,0.5);
+            padding: 32px 28px;
             margin-bottom: 25px;
-            box-shadow: 0 20px 35px -10px black;
         }
 
-        .task-title {
+        .premium-header h1 {
             font-size: 2rem;
             font-weight: 800;
-            text-align: center;
-            background: linear-gradient(135deg, #FFD966, #FF9F4A);
+            background: linear-gradient(135deg, #FFE6B0, #FFA559, #00ffaa);
             -webkit-background-clip: text;
             background-clip: text;
             color: transparent;
-            margin-bottom: 25px;
-            text-transform: uppercase;
-        }
-
-        .task-list {
-            display: flex;
-            flex-direction: column;
-            gap: 20px;
-        }
-
-        .task-item {
-            background: #0f1424cc;
-            border-radius: 40px;
-            padding: 18px 22px;
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-            flex-wrap: wrap;
-            transition: 0.2s;
-            border: 1px solid #2a3455;
-        }
-
-        .task-info {
-            display: flex;
-            align-items: center;
-            gap: 15px;
-        }
-
-        .task-number {
-            width: 45px;
-            height: 45px;
-            background: linear-gradient(145deg, #FFA047, #FF6A2E);
-            border-radius: 50%;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            font-weight: 800;
-            font-size: 1.4rem;
-            box-shadow: 0 4px 12px #ff6a2e80;
-        }
-
-        .task-name {
-            font-weight: 600;
-            font-size: 1.2rem;
-        }
-
-        .task-status {
-            font-size: 0.85rem;
-            padding: 6px 14px;
-            border-radius: 30px;
-            background: #1f2a44;
-            color: #aaa;
-        }
-
-        .task-status.completed {
-            background: #1f6d3a;
-            color: #bbffcc;
-            box-shadow: 0 0 6px #2eff7a;
-        }
-
-        .task-btn {
-            background: linear-gradient(95deg, #FF9F4A, #FFC96E);
-            border: none;
-            padding: 10px 28px;
-            border-radius: 40px;
-            font-weight: bold;
-            color: #0c0f1c;
-            cursor: pointer;
-            transition: 0.2s;
-            font-size: 0.9rem;
-        }
-
-        .task-btn:disabled {
-            opacity: 0.5;
-            transform: none;
-            cursor: not-allowed;
-        }
-
-        .bot-status {
             text-align: center;
+        }
+
+        .premium-header p {
+            text-align: center;
+            color: #9aa3bf;
+            margin-top: 10px;
+        }
+
+        .section-title {
+            font-size: 1.5rem;
+            font-weight: 700;
+            margin: 25px 0 15px 0;
+            color: #FFD966;
+        }
+
+        /* Server Grid */
+        .server-grid, .bot-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(145px, 1fr));
+            gap: 18px;
+            margin: 20px 0;
+        }
+
+        .server-card, .bot-card {
+            background: linear-gradient(145deg, #141b30, #0a0f1e);
+            padding: 18px 12px;
+            border-radius: 38px;
+            text-align: center;
+            cursor: pointer;
+            transition: all 0.25s;
+            border: 1px solid #2f3b66;
+            font-weight: 600;
+        }
+
+        .server-card:hover, .bot-card:hover {
+            transform: translateY(-3px);
+            border-color: #ffb347;
+        }
+
+        .server-card.selected, .bot-card.selected {
+            border: 2px solid #ffb347;
+            background: linear-gradient(145deg, #ffb34733, #ff8c4233);
+            box-shadow: 0 0 25px #ffb347;
+            transform: scale(1.02);
+        }
+
+        /* Form Inputs */
+        .input-group {
+            margin: 20px 0;
+        }
+
+        .input-group input {
+            width: 100%;
+            padding: 16px 22px;
+            background: #0a1022cc;
+            border: 1.5px solid #ffb34766;
+            border-radius: 60px;
+            color: white;
+            font-size: 1rem;
+            transition: 0.2s;
+        }
+
+        .input-group input:focus {
+            outline: none;
+            border-color: #ffb347;
+            box-shadow: 0 0 12px #ffb347;
+        }
+
+        .deploy-btn {
+            background: linear-gradient(95deg, #00c853, #64dd17);
+            border: none;
+            padding: 18px 35px;
+            border-radius: 60px;
+            font-size: 1.3rem;
+            font-weight: 800;
+            cursor: pointer;
+            width: 100%;
+            margin-top: 20px;
+            transition: 0.3s;
+            color: #0a0f1e;
+        }
+
+        .deploy-btn:hover {
+            transform: scale(1.02);
+            box-shadow: 0 0 30px #00ff88;
+        }
+
+        /* Terminal */
+        .terminal {
+            background: #050b15;
+            border-radius: 34px;
+            padding: 28px;
+            font-family: 'Courier New', monospace;
+            font-size: 0.9rem;
+            border: 1px solid #00ffaa;
+            box-shadow: 0 0 30px rgba(0, 255, 170, 0.2);
+            max-height: 400px;
+            overflow-y: auto;
             margin-top: 25px;
-            padding: 15px;
-            background: #0a0f1e99;
-            border-radius: 40px;
-            font-size: 1.2rem;
-            font-weight: bold;
-            border: 1px dashed #FFB347;
+            display: none;
         }
 
-        .green-bot {
-            color: #7effa3;
-            text-shadow: 0 0 6px #00ff88;
+        .terminal-line {
+            color: #00ffaa;
+            margin: 8px 0;
+            white-space: pre-wrap;
         }
 
-        .red-bot {
-            color: #ff8877;
+        .terminal-line.warning {
+            color: #ffaa44;
         }
 
-        /* কাউন্টডাউন মোডাল */
-        .modal-countdown {
+        .terminal-line.success {
+            color: #aaffdd;
+            text-shadow: 0 0 4px #00ffaa;
+        }
+
+        /* Modal */
+        .modal {
             position: fixed;
             top: 0;
             left: 0;
             width: 100%;
             height: 100%;
-            background: rgba(0,0,0,0.95);
-            backdrop-filter: blur(10px);
+            background: rgba(0, 0, 0, 0.97);
+            backdrop-filter: blur(20px);
             z-index: 2000;
             display: flex;
-            justify-content: center;
             align-items: center;
-            flex-direction: column;
+            justify-content: center;
             visibility: hidden;
             opacity: 0;
             transition: 0.2s;
         }
 
-        .modal-countdown.active {
+        .modal.active {
             visibility: visible;
             opacity: 1;
         }
 
-        .countdown-box {
-            background: #12182bb3;
-            padding: 35px;
-            border-radius: 70px;
+        .modal-content {
+            background: radial-gradient(circle at 20% 30%, #121a2e, #080d1c);
+            padding: 40px;
+            border-radius: 68px;
             text-align: center;
-            border: 1px solid gold;
-            width: 80%;
-            max-width: 320px;
+            max-width: 90%;
+            width: 500px;
+            border: 1px solid rgba(255, 200, 100, 0.6);
         }
 
-        .timer {
-            font-size: 4rem;
-            font-weight: 900;
-            font-family: monospace;
-            background: #000000aa;
-            padding: 15px;
-            border-radius: 60px;
-            margin: 20px 0;
-            letter-spacing: 8px;
+        .success-modal {
+            background: linear-gradient(145deg, #00a86b, #008855);
+            border: none;
         }
 
-        .warning-msg {
-            color: #ffaa88;
-            font-size: 0.9rem;
+        .success-modal h2 {
+            color: white;
+        }
+
+        footer {
+            text-align: center;
+            margin-top: 30px;
+            font-size: 0.7rem;
+            color: #4a5580;
         }
     </style>
 </head>
 <body>
+<canvas id="starsCanvas"></canvas>
 
-<!-- ল্যান্ডিং পেজ -->
-<div class="landing" id="landingPage">
-    <div class="glow-text">FF GUILD GLORY</div>
-    <div class="sub-logo">✦ ELITE VERIFICATION ✦</div>
-    <button class="enter-btn" id="enterBtn">⟡ প্রবেশ কর ⟡</button>
-</div>
-
-<!-- মেইন কন্টেইনার -->
-<div class="main-container" id="mainContainer">
-    <div class="premium-header">
-        <h2>⚡ COMPLETE THREE TASKS TO ENABLE GUILD BOT ⚡</h2>
+<div class="main-container">
+    <!-- Success Badge - EarnLinks completion confirmation -->
+    <div class="completion-badge">
+        <i class="fas fa-check-circle"></i> EARNLINKS VERIFICATION COMPLETED 
+        <i class="fas fa-shield-alt"></i> | ACCESS GRANTED
     </div>
 
-    <div class="glow-card">
-        <div class="task-title">⟡ মিশন বোর্ড ⟡</div>
-        <div class="task-list">
-            <!-- টাস্ক 1 -->
-            <div class="task-item" id="task1Item">
-                <div class="task-info">
-                    <div class="task-number">1</div>
-                    <div class="task-name">🎬 ইউটিউব সাবস্ক্রাইব</div>
-                </div>
-                <div>
-                    <span class="task-status" id="task1Status">⏳ pending</span>
-                    <button class="task-btn" id="task1Btn">✅ যাচাই শুরু</button>
-                </div>
-            </div>
-            <!-- টাস্ক 2 -->
-            <div class="task-item" id="task2Item">
-                <div class="task-info">
-                    <div class="task-number">2</div>
-                    <div class="task-name">⏳ লিংকে 60 সেকেন্ড অবস্থান</div>
-                </div>
-                <div>
-                    <span class="task-status" id="task2Status">⏳ pending</span>
-                    <button class="task-btn" id="task2Btn">🔗 টাস্ক চালু</button>
-                </div>
-            </div>
-            <!-- টাস্ক 3 (ডেমো) পরে যোগ করুন, বর্তমানে placeholder -->
-            <div class="task-item" id="task3Item">
-                <div class="task-info">
-                    <div class="task-number">3</div>
-                    <div class="task-name">✨ বোনাস ভেরিফিকেশন</div>
-                </div>
-                <div>
-                    <span class="task-status" id="task3Status">🔒 locked</span>
-                    <button class="task-btn" id="task3Btn" disabled>🚫 লকড</button>
-                </div>
-            </div>
+    <div class="glass-card">
+        <div class="premium-header">
+            <h1><i class="fas fa-robot"></i> GUILD GLORY BOT ACTIVATION</h1>
+            <p>Secure Military-Grade Deployment System</p>
+        </div>
+
+        <div class="section-title"><i class="fas fa-globe-asia"></i> SELECT YOUR SERVER</div>
+        <div class="server-grid" id="serverGrid">
+            <div class="server-card" data-server="bangladesh">🇧🇩 BANGLADESH</div>
+            <div class="server-card" data-server="nepal">🇳🇵 NEPAL</div>
+            <div class="server-card" data-server="india">🇮🇳 INDIA</div>
+            <div class="server-card" data-server="pakistan">🇵🇰 PAKISTAN</div>
+            <div class="server-card" data-server="srilanka">🇱🇰 SRI LANKA</div>
+            <div class="server-card" data-server="indonesia">🇮🇩 INDONESIA</div>
+        </div>
+
+        <div class="section-title"><i class="fas fa-microchip"></i> SELECT BOT UNIT</div>
+        <div class="bot-grid" id="botGrid">
+            <div class="bot-card" data-bot="BOT-1">🤖 BOT-1 | PRO</div>
+            <div class="bot-card" data-bot="BOT-2">⚡ BOT-2 | ELITE</div>
+            <div class="bot-card" data-bot="BOT-3">💎 BOT-3 | DIAMOND</div>
+            <div class="bot-card" data-bot="BOT-4">👑 BOT-4 | LEGENDARY</div>
+        </div>
+
+        <div class="section-title"><i class="fas fa-key"></i> GUILD CREDENTIALS</div>
+        <div class="input-group">
+            <input type="text" id="guildId" placeholder="🏰 Guild ID *">
+        </div>
+        <div class="input-group">
+            <input type="text" id="guestToken" placeholder="🔑 Guest Access Token *">
+        </div>
+        <div class="input-group">
+            <input type="password" id="password" placeholder="🔒 Encrypted Password *">
+        </div>
+
+        <button class="deploy-btn" id="deployBtn">
+            <i class="fas fa-rocket"></i> DEPLOY & ACTIVATE BOT <i class="fas fa-arrow-right"></i>
+        </button>
+
+        <div id="terminalContainer">
+            <div class="terminal" id="terminal"></div>
         </div>
     </div>
 
-    <div class="bot-status" id="botStatusArea">
-        🤖 গিল্ড বট স্ট্যাটাস : <span id="botState">⛔ নিষ্ক্রিয়</span>
-    </div>
-    <div style="font-size: 11px; text-align: center; margin-top: 20px; color: #6f7c9e;">সব টাস্ক সম্পূর্ণ করলেই বট সক্রিয় হবে</div>
-</div>
-
-<!-- কাউন্টডাউন মোডাল -->
-<div id="countdownModal" class="modal-countdown">
-    <div class="countdown-box">
-        <h3>⏳ অনুগ্রহ করে অপেক্ষা করুন</h3>
-        <div class="timer" id="timerDisplay">60</div>
-        <div class="warning-msg">⚠️ এক মিনিট সম্পূর্ণ না করলে টাস্ক হবে না!<br>পেজ ব্যাক করবেন না।</div>
-        <button id="closeModalBtn" style="margin-top:20px; background:#ffb347; border:none; padding:8px 20px; border-radius:60px; font-weight:bold;">বন্ধ করুন</button>
-    </div>
+    <footer>
+        <i class="fas fa-shield-haltered"></i> Military Grade Encryption | Session secured
+    </footer>
 </div>
 
 <script>
-    // ----- VARIABLES -----
-    // টাস্ক কমপ্লিট স্টেট
-    let task1Completed = false;
-    let task2Completed = false;
+    // ========== STATE ==========
+    let selectedServer = null;
+    let selectedBot = null;
 
-    // টাস্ক 2 কাউন্টার রেফারেন্স
-    let countdownInterval = null;
-    let isCounting = false;
-    let remainingSeconds = 60;
-
-    // ডম এলিমেন্টস
-    const task1StatusSpan = document.getElementById('task1Status');
-    const task2StatusSpan = document.getElementById('task2Status');
-    const task3StatusSpan = document.getElementById('task3Status');
-    const task1Btn = document.getElementById('task1Btn');
-    const task2Btn = document.getElementById('task2Btn');
-    const task3Btn = document.getElementById('task3Btn');
-    const botStateSpan = document.getElementById('botState');
-    const modal = document.getElementById('countdownModal');
-    const timerDisplaySpan = document.getElementById('timerDisplay');
-    const closeModalBtn = document.getElementById('closeModalBtn');
-
-    // Monetag লিংক (টাস্ক ২ এর জন্য)
-    const MONETAG_URL = "https://omg10.com/4/11017489";
-    // ইউটিউব চ্যানেল লিংক
-    const YT_URL = "https://youtube.com/@firexlegend420?si=ypz1M8GyIus3Z_xB";
-
-    // ল্যান্ডিং পেজ ট্রানজিশন
-    const landing = document.getElementById('landingPage');
-    const mainContainer = document.getElementById('mainContainer');
-    const enterBtn = document.getElementById('enterBtn');
-
-    enterBtn.addEventListener('click', () => {
-        landing.classList.add('hide');
-        setTimeout(() => {
-            mainContainer.classList.add('show');
-        }, 200);
+    // DOM Elements
+    const serverCards = document.querySelectorAll('.server-card');
+    const botCards = document.querySelectorAll('.bot-card');
+    const deployBtn = document.getElementById('deployBtn');
+    const terminalDiv = document.getElementById('terminal');
+    
+    // Server Selection
+    serverCards.forEach(card => {
+        card.addEventListener('click', () => {
+            serverCards.forEach(c => c.classList.remove('selected'));
+            card.classList.add('selected');
+            selectedServer = card.getAttribute('data-server');
+        });
     });
 
-    // ইউটিউব চেক (সিমুলেটেড সাবস্ক্রাইব চেক + রিডাইরেক্ট)
-    // NOTE: বাস্তবে কোনো ওয়েবসাইট জানতে পারে না ইউজার সত্যি সাবস্ক্রাইব করেছে কিনা (ক্রস-অরিজিন সীমাবদ্ধতা)
-    // তবে এখানে আমরা ধরে নিচ্ছি ইউজারকে লিংকে পাঠানোর পর ফিরে এসে Confirm করবে। একে 'ট্রাস্ট সিস্টেম' বলা যায়।
-    // আমরা একটি কৌশল ব্যবহার করব: ইউজারকে ইউটিউবে পাঠানো হবে, তারপর একটি ডায়লগ দেখাবে "আপনি কি সাবস্ক্রাইব করেছেন?"।
-    
-    task1Btn.addEventListener('click', () => {
-        if(task1Completed) {
-            alert("✅ টাস্ক ১ ইতিমধ্যে সম্পূর্ণ!");
+    // Bot Selection
+    botCards.forEach(card => {
+        card.addEventListener('click', () => {
+            botCards.forEach(c => c.classList.remove('selected'));
+            card.classList.add('selected');
+            selectedBot = card.getAttribute('data-bot');
+        });
+    });
+
+    // Deploy Button Click
+    deployBtn.addEventListener('click', () => {
+        const guildId = document.getElementById('guildId').value.trim();
+        const guestToken = document.getElementById('guestToken').value.trim();
+        const password = document.getElementById('password').value.trim();
+
+        // Validation
+        if(!selectedServer) {
+            showAlertModal("⚠️ Please select a server region!");
             return;
         }
-        // ইউটিউব চ্যানেল খোলার জন্য নতুন ট্যাব
-        window.open(YT_URL, "_blank");
+        if(!selectedBot) {
+            showAlertModal("⚠️ Please select a bot unit!");
+            return;
+        }
+        if(!guildId) {
+            showAlertModal("⚠️ Please enter your Guild ID!");
+            return;
+        }
+        if(!guestToken) {
+            showAlertModal("⚠️ Please enter your Guest Access Token!");
+            return;
+        }
+        if(!password) {
+            showAlertModal("⚠️ Please enter your password!");
+            return;
+        }
+
+        // Start terminal animation
+        startTerminalSequence(guildId);
+    });
+
+    function startTerminalSequence(guildId) {
+        terminalDiv.style.display = 'block';
+        terminalDiv.innerHTML = '<div class="terminal-line">> Initializing secure deployment node v5.2...</div>';
         
-        // কিছুক্ষণ পরে জিজ্ঞেস করবে সাবস্ক্রাইব করেছেন কিনা
-        setTimeout(() => {
-            let confirmSub = confirm("আপনি কি ইউটিউব চ্যানেলটি সাবস্ক্রাইব করেছেন?\n'OK' চাপলে টাস্ক কমপ্লিট হবে (ধরে নেয়া হবে আপনি সাবস্ক্রাইব করেছেন)");
-            if(confirmSub) {
-                // সিমুলেটেড যাচাই সম্পন্ন
-                task1Completed = true;
-                task1StatusSpan.innerText = "✅ completed";
-                task1StatusSpan.classList.add('completed');
-                task1Btn.disabled = true;
-                task1Btn.innerText = "✔ সম্পন্ন";
-                checkAllTasks();
-                showToast("🎉 টাস্ক 1 সম্পন্ন! ইউটিউব সাবস্ক্রাইব সফল ✅");
+        const logs = [
+            { text: "> Establishing quantum encrypted tunnel...", type: "normal" },
+            { text: `> Server: ${selectedServer.toUpperCase()} | Status: ONLINE | Latency: 12ms`, type: "normal" },
+            { text: `> Bot Unit: ${selectedBot} | Firmware: v5.2.7 | Core integrity: 100%`, type: "normal" },
+            { text: `> Guild ID: ${guildId.substring(0,5)}**** | Validating credentials...`, type: "normal" },
+            { text: "> [WARNING] Bypassing regional firewall rules...", type: "warning" },
+            { text: "> Injecting Glory Payload into bot neural core...", type: "normal" },
+            { text: "> ████████░░░░ 42% - Encrypting handshake protocol", type: "normal" },
+            { text: "> ████████████░░ 74% - Syncing with master control node", type: "normal" },
+            { text: "> ██████████████ 98% - Finalizing deployment", type: "normal" },
+            { text: "> [SUCCESS] Guild Bot Successfully Activated!", type: "success" },
+            { text: `> Transaction ID: GL4-${Math.random().toString(36).substring(2,8).toUpperCase()}`, type: "success" },
+            { text: "> Your bot request has been submitted to main server.", type: "normal" },
+            { text: "> ⏳ Please allow 5 hours for final confirmation.", type: "warning" }
+        ];
+        
+        let index = 0;
+        const interval = setInterval(() => {
+            if(index < logs.length) {
+                const log = logs[index];
+                const line = document.createElement('div');
+                line.className = 'terminal-line';
+                if(log.type === 'warning') line.classList.add('warning');
+                if(log.type === 'success') line.classList.add('success');
+                line.innerHTML = log.text;
+                terminalDiv.appendChild(line);
+                terminalDiv.scrollTop = terminalDiv.scrollHeight;
+                index++;
             } else {
-                alert("❌ টাস্ক সম্পন্ন হয়নি। দয়া করে সাবস্ক্রাইব করে আবার চেষ্টা করুন।");
+                clearInterval(interval);
+                // Show final success modal
+                setTimeout(() => {
+                    showSuccessModal();
+                }, 1000);
             }
-        }, 1500);
+        }, 700);
+    }
+
+    function showSuccessModal() {
+        const modal = document.createElement('div');
+        modal.className = 'modal active';
+        modal.innerHTML = `
+            <div class="modal-content success-modal">
+                <i class="fas fa-check-circle" style="font-size: 4rem; color: #aaffdd;"></i>
+                <h2 style="margin: 20px 0;">✅ ACTIVATION SUCCESSFUL ✅</h2>
+                <p>Your bot request has been encrypted and submitted to the Guild Glory mainframe.</p>
+                <p style="margin: 15px 0;"><strong>Status:</strong> Pending Confirmation</p>
+                <p>Please allow up to 5 hours for final delivery.</p>
+                <button onclick="this.parentElement.parentElement.remove()" style="background: #ffb347; padding: 12px 35px; border-radius: 50px; margin-top: 25px; border: none; font-weight: bold; cursor: pointer;">
+                    <i class="fas fa-check"></i> CLOSE
+                </button>
+            </div>
+        `;
+        document.body.appendChild(modal);
+    }
+
+    function showAlertModal(message) {
+        const modal = document.createElement('div');
+        modal.className = 'modal active';
+        modal.innerHTML = `
+            <div class="modal-content">
+                <i class="fas fa-exclamation-triangle" style="font-size: 3rem; color: #ffaa44;"></i>
+                <h3 style="margin: 15px 0;">Alert!</h3>
+                <p>${message}</p>
+                <button onclick="this.parentElement.parentElement.remove()" style="background: #ffb347; padding: 10px 30px; border-radius: 50px; margin-top: 20px; border: none; cursor: pointer;">OK</button>
+            </div>
+        `;
+        document.body.appendChild(modal);
+    }
+
+    // ========== STARFIELD BACKGROUND ANIMATION ==========
+    const canvas = document.getElementById('starsCanvas');
+    const ctx = canvas.getContext('2d');
+    let width = window.innerWidth;
+    let height = window.innerHeight;
+    canvas.width = width;
+    canvas.height = height;
+
+    let stars = [];
+    for(let i = 0; i < 200; i++) {
+        stars.push({
+            x: Math.random() * width,
+            y: Math.random() * height,
+            radius: Math.random() * 2 + 1,
+            alpha: Math.random() * 0.6 + 0.2
+        });
+    }
+
+    function drawStars() {
+        if(!ctx) return;
+        ctx.clearRect(0, 0, width, height);
+        ctx.fillStyle = "#05070f";
+        ctx.fillRect(0, 0, width, height);
+        for(let s of stars) {
+            ctx.beginPath();
+            ctx.arc(s.x, s.y, s.radius, 0, Math.PI * 2);
+            ctx.fillStyle = `rgba(255, 220, 150, ${s.alpha})`;
+            ctx.fill();
+        }
+        requestAnimationFrame(drawStars);
+    }
+
+    window.addEventListener('resize', () => {
+        width = window.innerWidth;
+        height = window.innerHeight;
+        canvas.width = width;
+        canvas.height = height;
+        stars = [];
+        for(let i = 0; i < 200; i++) {
+            stars.push({
+                x: Math.random() * width,
+                y: Math.random() * height,
+                radius: Math.random() * 2 + 1,
+                alpha: Math.random() * 0.6 + 0.2
+            });
+        }
     });
 
-    // টাস্ক ২: Monetag লিংক ওপেন + এক মিনিট কাউন্টডাউন (অটো কমপ্লিট)
-    task2Btn.addEventListener('click', () => {
-        if(task2Completed) {
-            alert("টাস্ক ২ ইতিমধ্যে সম্পন্ন!");
-            return;
-        }
-        if(isCounting) {
-            alert("আপনি ইতিমধ্যে টাস্ক ২ প্রক্রিয়ায় আছেন, দয়া করে অপেক্ষা করুন।");
-            return;
-        }
-        
-        // Monetag লিংক ওপেন
-        window.open(MONETAG_URL, "_blank");
-        
-        // কাউন্টডাউন মোডাল চালু
-        startCountdownForTask2();
-    });
-    
-    function startCountdownForTask2() {
-        isCounting = true;
-        remainingSeconds = 60;
-        timerDisplaySpan.innerText = remainingSeconds;
-        modal.classList.add('active');
-        
-        if(countdownInterval) clearInterval(countdownInterval);
-        
-        countdownInterval = setInterval(() => {
-            if(remainingSeconds <= 1) {
-                // টাইম শেষ
-                clearInterval(countdownInterval);
-                countdownInterval = null;
-                if(isCounting) {
-                    // সফলভাবে টাস্ক ২ সম্পন্ন
-                    task2Completed = true;
-                    task2StatusSpan.innerText = "✅ completed";
-                    task2StatusSpan.classList.add('completed');
-                    task2Btn.disabled = true;
-                    task2Btn.innerText = "✔ সম্পন্ন";
-                    isCounting = false;
-                    modal.classList.remove('active');
-                    showToast("⏱️ টাস্ক ২ সম্পন্ন! আপনি 60 সেকেন্ড পূর্ণ করেছেন।");
-                    checkAllTasks();
-                }
-            } else {
-                remainingSeconds--;
-                timerDisplaySpan.innerText = remainingSeconds;
-            }
-        }, 1000);
-    }
-    
-    // মোডাল বন্ধ করলে টাস্ক ব্যর্থ হবে
-    closeModalBtn.addEventListener('click', () => {
-        if(isCounting && countdownInterval) {
-            // ইউজার ব্যাক / বন্ধ করে দিয়েছে => টাস্ক fail
-            clearInterval(countdownInterval);
-            countdownInterval = null;
-            isCounting = false;
-            modal.classList.remove('active');
-            alert("❌ আপনি এক মিনিট অপেক্ষা সম্পূর্ণ করেননি। টাস্ক ২ ব্যর্থ হয়েছে। আবার টাস্ক শুরু করুন।");
-        } else {
-            modal.classList.remove('active');
-        }
-    });
-    
-    // চেক সব টাস্ক শেষ হলে গিল্ড বট এনাবল
-    function checkAllTasks() {
-        if(task1Completed && task2Completed) {
-            // টাস্ক ৩ আনলক এবং বট সক্রিয়
-            task3StatusSpan.innerText = "🔓 available";
-            task3Btn.disabled = false;
-            task3Btn.innerText = "⚡ ভেরিফাই নাও";
-            botStateSpan.innerHTML = "🟢 গিল্ড বট সক্রিয় (সমস্ত টাস্ক সম্পন্ন!)";
-            botStateSpan.parentElement.classList.add("green-bot");
-            
-            // টাস্ক ৩ ইভেন্ট (শুধু আনুষ্ঠানিকতা)
-            task3Btn.onclick = () => {
-                alert("🎉 অভিনন্দন! গিল্ড বট এখন সম্পূর্ণরূপে চালু।\nআপনার গিল্ড গ্লোরি অটোমেশন রেডি।");
-                task3Completed = true;
-                task3StatusSpan.innerText = "⭐ সম্পূর্ণ";
-                task3Btn.disabled = true;
-            };
-        } else {
-            // বট নিষ্ক্রিয়
-            botStateSpan.innerHTML = "⛔ নিষ্ক্রিয় (প্রথমে ৩ টি টাস্ক সম্পন্ন করুন)";
-        }
-    }
-    
-    // সিম্পল টোস্ট
-    function showToast(msg) {
-        let toastDiv = document.createElement('div');
-        toastDiv.innerText = msg;
-        toastDiv.style.position = 'fixed';
-        toastDiv.style.bottom = '30px';
-        toastDiv.style.left = '50%';
-        toastDiv.style.transform = 'translateX(-50%)';
-        toastDiv.style.backgroundColor = '#1e2a3e';
-        toastDiv.style.color = '#ffd966';
-        toastDiv.style.padding = '12px 24px';
-        toastDiv.style.borderRadius = '60px';
-        toastDiv.style.zIndex = '9999';
-        toastDiv.style.fontWeight = 'bold';
-        toastDiv.style.border = '1px solid gold';
-        toastDiv.style.backdropFilter = 'blur(8px)';
-        toastDiv.style.fontSize = '14px';
-        document.body.appendChild(toastDiv);
-        setTimeout(() => {
-            toastDiv.remove();
-        }, 3000);
-    }
-    
-    // প্রাথমিক বট স্টেট
-    botStateSpan.innerHTML = "⛔ নিষ্ক্রিয়";
-    
-    // ইউজার যদি পেজ রিফ্রেশ করে তাহলে টাস্ক রিসেট হবে - এটাই স্বাভাবিক (ব্যাকএন্ড ছাড়া)
-    // টাস্ক ২ এর সময় ইউজার ব্যাক করলে মডেল এর মাধ্যমে ফেইল সিস্টেম আছে।
-    
-    // মজুত: Task 2 এর জন্য ইউজার ম্যানুয়ালি ব্যাক করলে বা ট্যাব বন্ধ করলে ওয়েবসাইট থেকে সতর্কতা দেয়া যায়। 
-    // কিন্তু পরিপূর্ণ নিরাপত্তা সম্ভব না। তবে এই সিমুলেশনই যথেষ্ট।
-    
-    // উইন্ডো আনলোডে কাউন্টার রিসেটের প্রয়োজন?
-    window.addEventListener("beforeunload", (e) => {
-        if(isCounting && countdownInterval) {
-            // ইউজার পেজ ছাড়ার চেষ্টা করলে একটি ওয়ার্নিং (সব ব্রাউজারে কাজ করে না, তবে ইন্ডিকেটর)
-            e.preventDefault();
-            e.returnValue = "টাস্ক চলছে, পেজ ছাড়লে অগ্রগতি হারাবে। নিশ্চিত?";
-        }
-    });
-    
-    // ইউটিউব সাবস্ক্রাইব চেক ২য়বার ঠক ঠেকানোর জন্য অতিরিক্ত নাই, এটা শুধুমাত্র ডেমো ওয়ার্কফ্লো।
-    // বাস্তবে গিল্ড গ্লোরি বটের সাথে কোনো সম্পর্ক নেই
-    console.log("FF GUILD GLORY TASK SYSTEM - DEMO PURPOSES");
+    drawStars();
 </script>
 </body>
 </html>
